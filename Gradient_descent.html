@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gradient Descent Basics</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; margin: 2rem; background: #f9f9f9; }
+    h2 { color: #2c3e50; }
+    code, .math { background: #eee; padding: 2px 4px; border-radius: 4px; font-family: 'Courier New', monospace; }
+    section { margin-bottom: 2rem; }
+    .formula { font-style: italic; color: #d35400; }
+  </style>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+</head>
+<body>
+
+  <h1 style="text-align: center; font-weight: bold;">Gradient Descent: Concepts and Math</h1>
+
+
+  <section>
+    <h2>1. What is a Gradient?</h2>
+    <p>A <strong>gradient</strong> is a vector of partial derivatives indicating the direction and rate of steepest increase of a function. In optimization, we move in the <strong>opposite direction</strong> to minimize the function.</p>
+  </section>
+
+  <section>
+    <h2>2. Gradient Descent Algorithm </h2>
+    <p><strong>Definition:</strong> Gradient Descent is an optimization algorithm used to <em>minimize a function</em> by iteratively moving in the direction of the <em>steepest descent</em>, i.e., the <em>negative gradient</em>.</p>
+    
+    <p><strong>Update Rule:</strong></p>
+    <div class="formula">θ<sub>new</sub> = θ<sub>old</sub> - η ⋅ ∇L(θ)</div>
+    <ul>
+      <li><code>∇L(θ)</code>: Gradient of the loss function with respect to parameters.</li>
+      <li><code>η</code>: Learning rate, the step size.</li>
+    </ul>
+  
+    <p><strong>Steps:</strong></p>
+    <ol>
+      <li>Initialize parameters <code>θ</code>.</li>
+      <li>Compute the gradient <code>∇L(θ)</code>.</li>
+      <li>Update parameters using the formula above.</li>
+      <li>Repeat until the loss converges (minimal change).</li>
+    </ol>
+  </section>
+  
+  <div class="gradient-descent-widget">
+    <p>Let us visualize the trajectory of Gradient Descent on the function:</p>
+    <div class="gd-equation-display">
+      \[ f(w_1, w_2) = w_1^2 + w_2^2 \]
+    </div>
+    <div id="gradient-descent-plot-area" style="width: 100%; height: 500px;"></div>
+  
+    <script>
+      (function() {
+        const xVals = [], yVals = [], zVals = [];
+        for (let xi = -2; xi <= 2; xi += 0.1) {
+          const rowX = [], rowY = [], rowZ = [];
+          for (let yi = -2; yi <= 2; yi += 0.1) {
+            rowX.push(xi);
+            rowY.push(yi);
+            rowZ.push(xi * xi + yi * yi);
+          }
+          xVals.push(rowX);
+          yVals.push(rowY);
+          zVals.push(rowZ);
+        }
+  
+        const surfacePlot = {
+          x: xVals,
+          y: yVals,
+          z: zVals,
+          type: 'surface',
+          opacity: 0.9,
+          colorscale: 'YlGnBu'
+        };
+  
+        const lr = 0.1;
+        let point = [1.8, -1.5];
+        const pathX = [point[0]];
+        const pathY = [point[1]];
+        const pathZ = [point[0] ** 2 + point[1] ** 2];
+  
+        for (let step = 0; step < 30; step++) {
+          const grad = [2 * point[0], 2 * point[1]];
+          point = [point[0] - lr * grad[0], point[1] - lr * grad[1]];
+          pathX.push(point[0]);
+          pathY.push(point[1]);
+          pathZ.push(point[0] ** 2 + point[1] ** 2);
+        }
+  
+        const pathTrace = {
+          type: 'scatter3d',
+          mode: 'lines+markers',
+          x: pathX,
+          y: pathY,
+          z: pathZ,
+          line: { color: 'red', width: 4 },
+          marker: { size: 4, color: 'red' },
+          name: 'GD Path'
+        };
+  
+        Plotly.newPlot('gradient-descent-plot-area', [surfacePlot, pathTrace], {
+          title: 'Gradient Descent on f(w₁, w₂) = w₁² + w₂²',
+          scene: {
+            xaxis: { title: 'w₁' },
+            yaxis: { title: 'w₂' },
+            zaxis: { title: 'Loss' },
+            camera: { eye: { x: 1.8, y: 1.8, z: 1.5 } }
+          },
+          margin: { l: 0, r: 0, b: 0, t: 30 }
+        });
+      })();
+    </script>
+  </div>
+  
+  <div>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>GD Contour Visualization</title>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                padding: 20px;
+                background-color: #f4f4f4;
+            }
+            h1 {
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Gradient Descent Contour Plot </h1>
+        <div id="gdcontour_plot"></div>
+
+        <script>
+            // Define function and gradient
+            function gdcontour_f(x, y) {
+                return x**2 + y**2;
+            }
+
+            function gdcontour_grad(x, y) {
+                return [2 * x, 2 * y];
+            }
+
+            // Gradient Descent Params
+            let gdcontour_start = [3, 3];
+            let gdcontour_step = 0.1;
+            let gdcontour_iter = 10;
+            let gdcontour_path = [gdcontour_start];
+
+            let gdcontour_curr = gdcontour_start;
+            for (let gdcontour_i = 0; gdcontour_i < gdcontour_iter; gdcontour_i++) {
+                let gdcontour_g = gdcontour_grad(gdcontour_curr[0], gdcontour_curr[1]);
+                gdcontour_curr = [
+                    gdcontour_curr[0] - gdcontour_step * gdcontour_g[0],
+                    gdcontour_curr[1] - gdcontour_step * gdcontour_g[1]
+                ];
+                gdcontour_path.push(gdcontour_curr);
+            }
+
+            // Grid for contour
+            let gdcontour_x = [];
+            let gdcontour_y = [];
+            for (let i = -3; i <= 3; i += 0.1) {
+                for (let j = -3; j <= 3; j += 0.1) {
+                    gdcontour_x.push(i);
+                    gdcontour_y.push(j);
+                }
+            }
+
+            let gdcontour_z = gdcontour_x.map((x, idx) =>
+                gdcontour_f(x, gdcontour_y[idx])
+            );
+
+            let gdcontour_contour = {
+                x: gdcontour_x,
+                y: gdcontour_y,
+                z: gdcontour_z,
+                type: 'contour',
+                colorscale: 'Viridis',
+                colorbar: { title: 'f(x, y)' },
+                contours: {
+                    coloring: 'fill',
+                    showlabels: true
+                }
+            };
+
+            let gdcontour_trace_path = {
+                x: gdcontour_path.map(p => p[0]),
+                y: gdcontour_path.map(p => p[1]),
+                mode: 'markers+lines',
+                type: 'scatter',
+                name: 'GD Path',
+                marker: { color: 'red', size: 8 }
+            };
+
+            let gdcontour_trace_start = {
+                x: [gdcontour_path[0][0]],
+                y: [gdcontour_path[0][1]],
+                mode: 'markers',
+                type: 'scatter',
+                name: 'Start',
+                marker: { color: 'green', size: 12 }
+            };
+
+            let gdcontour_trace_end = {
+                x: [gdcontour_path[gdcontour_iter][0]],
+                y: [gdcontour_path[gdcontour_iter][1]],
+                mode: 'markers',
+                type: 'scatter',
+                name: 'End',
+                marker: { color: 'blue', size: 12 }
+            };
+
+            let gdcontour_data = [
+                gdcontour_contour,
+                gdcontour_trace_path,
+                gdcontour_trace_start,
+                gdcontour_trace_end
+            ];
+
+            let gdcontour_layout = {
+                title: 'Gradient Descent on f(x, y) = x² + y²',
+                xaxis: { title: 'x' },
+                yaxis: { title: 'y' },
+                showlegend: true
+            };
+
+            Plotly.newPlot('gdcontour_plot', gdcontour_data, gdcontour_layout);
+        </script>
+    </body>
+    </html>
+</div>
+
+  <section>
+    <h2>3. Learning Rate</h2>
+    <ul>
+      <li><strong>Too small</strong>: Slow convergence.</li>
+      <li><strong>Too large</strong>: Overshoots or diverges.</li>
+    </ul>
+  </section>
+  <div>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Gradient Descent Visualization</title>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                padding: 20px;
+                background-color: #f4f4f4;
+            }
+            h1 {
+                text-align: center;
+            }
+            .gd-content {
+                margin-top: 20px;
+            }
+            .gd-steps {
+                margin-top: 20px;
+            }
+            .gd-step {
+                font-size: 18px;
+                margin: 10px 0;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Gradient Descent Visualization</h1>
+        <div class="gd-content">
+            <p>Equation: <strong>f(x) = x^2 + 2x + 1</strong></p>
+            <p>Step Size: <strong>0.1</strong></p>
+            <p>Iterations: <strong>4</strong></p>
+        </div>
+
+        <div class="gd-steps">
+            <h2>Gradient Descent Steps:</h2>
+            <div id="gd-steps"></div>
+        </div>
+
+        <div id="gd-plot"></div>
+
+        <script>
+            // Define the function and its derivative
+            function f(x) {
+                return x**2 + 2*x + 1;
+            }
+
+            function df(x) {
+                return 2*x + 2;
+            }
+
+            // Parameters for gradient descent
+            let x_start = 5;  // Initial point
+            let step_size = 0.1;
+            let num_iterations = 4;  // Set iterations to 4
+            let x_values = [x_start];  // Store x values for plotting
+            let y_values = [f(x_start)];  // Store f(x) values for plotting
+            let steps = [];  // Store steps for displaying math
+
+            // Gradient descent process
+            let x = x_start;
+            steps.push(`Iteration 0: x = ${x.toFixed(2)}, f(x) = ${f(x).toFixed(2)}`);
+            for (let i = 1; i <= num_iterations; i++) {
+                x = x - step_size * df(x);  // Update x based on gradient
+                x_values.push(x);
+                y_values.push(f(x));  // Compute f(x) for the new x
+                steps.push(`Iteration ${i}: x = ${x.toFixed(2)}, f(x) = ${f(x).toFixed(2)}, x = x - ${step_size} * df(x)`);
+            }
+
+            // Display steps mathematically
+            let stepsHTML = steps.map(step => `<div class="gd-step">${step}</div>`).join('');
+            document.getElementById("gd-steps").innerHTML = stepsHTML;
+
+            // Create the plot
+            let trace1 = {
+                x: x_values,
+                y: y_values,
+                mode: 'lines+markers',
+                type: 'scatter',
+                name: 'Gradient Descent Path',
+                marker: { color: 'red' }
+            };
+
+            let trace2 = {
+                x: [x_values[0]],
+                y: [y_values[0]],
+                mode: 'markers',
+                name: 'Start',
+                marker: { color: 'green', size: 12 }
+            };
+
+            let trace3 = {
+                x: [x_values[num_iterations]],
+                y: [y_values[num_iterations]],
+                mode: 'markers',
+                name: 'End',
+                marker: { color: 'blue', size: 12 }
+            };
+
+            let data = [trace1, trace2, trace3];
+
+            let layout = {
+                title: 'Gradient Descent on f(x) = x^2 + 2x + 1',
+                xaxis: {
+                    title: 'x',
+                    showgrid: true
+                },
+                yaxis: {
+                    title: 'f(x)',
+                    showgrid: true
+                },
+                showlegend: true
+            };
+
+            Plotly.newPlot('gd-plot', data, layout);
+        </script>
+    </body>
+    </html>
+</div>
+
+
+  <section>
+    <h2>4. Convergence</h2>
+    <p>We want the loss function to <strong>decrease smoothly</strong> over time. A well-chosen learning rate helps us reach a minimum without oscillation or divergence.</p>
+  </section>
+  <body>
+    <h1>Choosing Learning Rate in Stochastic Gradient Descent (SGD)</h1>
+
+    <div class="box">
+        <h2>1. Theoretical Requirements for Convergence</h2>
+        <p>For SGD to converge, the learning rate sequence \( \{ \eta_t \} \) must satisfy the <strong>Robbins-Monro Conditions</strong>:</p>
+        <ul>
+            <li><strong>Infinite Exploration:</strong> \( \sum_{t=1}^{\infty} \eta_t = \infty \) — Ensures the algorithm explores the parameter space indefinitely.</li>
+            <li><strong>Finite Variance:</strong> \( \sum_{t=1}^{\infty} \eta_t^2 < \infty \) — Ensures the noise in stochastic updates diminishes over time.</li>
+        </ul>
+    </div>
+
+    <div class="box">
+        <h2>2. Case 1: \( \eta_t = \frac{1}{1+t} \)</h2>
+        <p><strong>Infinite Exploration Check:</strong></p>
+        <p>\( \sum_{t=1}^{\infty} \frac{1}{1+t} = \sum_{k=2}^{\infty} \frac{1}{k} \rightarrow \infty \) (Harmonic series)</p>
+        <p><strong>✅ Satisfies Infinite Exploration</strong></p>
+
+        <p><strong>Finite Variance Check:</strong></p>
+        <p>\( \sum_{t=1}^{\infty} \left( \frac{1}{1+t} \right)^2 \approx \sum_{k=2}^{\infty} \frac{1}{k^2} = \frac{\pi^2}{6} - 1 \)</p>
+        <p><strong>✅ Satisfies Finite Variance</strong></p>
+
+        <p><strong>Conclusion:</strong> \( \eta_t = \frac{1}{1+t} \) is valid for SGD convergence.</p>
+    </div>
+
+    <div class="box">
+        <h2>3. Case 2: \( \eta_t = \frac{1}{2^t} \)</h2>
+        <p><strong>Infinite Exploration Check:</strong></p>
+        <p>\( \sum_{t=1}^{\infty} \frac{1}{2^t} = 1 \) (Geometric series)</p>
+        <p><strong>❌ Fails Infinite Exploration</strong></p>
+
+        <p><strong>Finite Variance Check:</strong></p>
+        <p>\( \sum_{t=1}^{\infty} \left( \frac{1}{2^t} \right)^2 = \sum_{t=1}^{\infty} \frac{1}{4^t} = \frac{1}{3} \)</p>
+        <p><strong>✅ Satisfies Finite Variance</strong></p>
+
+        <p><strong>Conclusion:</strong> \( \eta_t = \frac{1}{2^t} \) is <strong>invalid</strong> as it fails the infinite exploration condition.</p>
+    </div>
+
+    <div class="box">
+        <h2>4. Practical Implications</h2>
+        <h3>(a) Why \( \eta_t = \frac{1}{2^t} \) Fails</h3>
+        <ul>
+            <li>Decay is exponential — step size becomes negligible quickly.</li>
+            <li>Premature convergence: Updates stop before reaching the true minimum.</li>
+            <li>Example: Minimizing \( f(\theta) = \theta^2 \) leads to stagnation far from 0.</li>
+        </ul>
+
+        <h3>(b) Why \( \eta_t = \frac{1}{1+t} \) Works</h3>
+        <ul>
+            <li>Decay is polynomial — updates remain meaningful for longer.</li>
+            <li>Convergence is slow but steady.</li>
+            <li>Example: For \( f(\theta) = \theta^2 \), we get \( \theta_{t+1} = \theta_t - \frac{2\theta_t}{1+t} \).</li>
+        </ul>
+    </div>
+
+    <div class="box">
+        <h2>5. Key Takeaways</h2>
+        <ul>
+            <li><strong>Decay Rate Matters:</strong>
+                <ul>
+                    <li>\( \eta_t = \frac{1}{1+t} \): decays polynomially → good.</li>
+                    <li>\( \eta_t = \frac{1}{2^t} \): decays exponentially → bad.</li>
+                </ul>
+            </li>
+            <li><strong>Practical Note:</strong> Even good theoretical sequences are often replaced by adaptive methods like Adam, RMSProp, or learning rate schedules (cosine annealing, step decay) in real-world applications.</li>
+        </ul>
+        <p><strong>Final Verdict:</strong> Use \( \eta_t = \frac{1}{1+t} \) for theoretical convergence, but prefer adaptive methods in practice.</p>
+    </div>
+</body>
+  <section>
+    <h2>5. Convexity and Local Minima</h2>
+    <ul>
+      <li><strong>Convex functions</strong>: Single global minimum; easy to optimize.</li>
+      <li><strong>Non-convex functions</strong>: Multiple local minima; harder to optimize but common in deep learning.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>6. Summary Table</h2>
+    <table border="1" cellpadding="8">
+      <thead>
+        <tr><th>Concept</th><th>Meaning</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Gradient</td><td>Direction of steepest increase (used oppositely to minimize)</td></tr>
+        <tr><td>Learning Rate (η)</td><td>Controls update step size</td></tr>
+        <tr><td>Convergence</td><td>When loss stabilizes as updates proceed</td></tr>
+        <tr><td>Convex Function</td><td>One minimum; safe optimization</td></tr>
+        <tr><td>Non-convex Function</td><td>Multiple minima; trickier but often sufficient</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gradient Descent Practice Questions</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      line-height: 1.6;
+    }
+    h2 {
+      color: #2c3e50;
+    }
+    .question {
+      background-color: #f7f9fb;
+      border-left: 5px solid #3498db;
+      padding: 15px;
+      margin-bottom: 30px;
+    }
+    code {
+      background: #eee;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    ul {
+      margin-top: 10px;
+    }
+    li {
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Practice Questions</h2>
+
+  <div class="question">
+    <strong>✅ Q1: One Iteration </strong><br><br>
+    Function:<br>
+    \( f(x, y) = x^2 + 3y^2 - 4x + 6y \)<br><br>
+    Initial point: \( (x_0, y_0) = (2, -1) \)<br>
+    Learning rate: \( \eta = 0.1 \)<br><br>
+    <strong>Question:</strong><br>
+    Apply one step of gradient descent and compute the updated point \( (x_1, y_1) \).<br>
+    What is the value of \( x_1 + y_1 \)? (Answer as a number.)
+  </div>
+
+  <div class="question">
+    <strong>🔥🧠 Q2: Trigonometric & Two Iterations</strong><br><br>
+    Function:<br>
+    \( f(x, y) = \sin(x) + \cos(y) + xy \)<br><br>
+    Initial point: \( (x_0, y_0) = \left(\frac{\pi}{4}, \frac{\pi}{3}\right) \)<br>
+    Learning rate: \( \eta = 0.05 \)<br><br>
+    <strong>Question:</strong><br>
+    Using two iterations of gradient descent, compute the updated values \( x_2 \) and \( y_2 \).<br>
+    What is the value of \( x_2 + y_2 \)? (Give your answer rounded to 4 decimal places.)
+  </div>
+
+  <div class="question">
+    <strong>📘 Q3: Theory — Convergence</strong><br><br>
+    Which of the following conditions guarantees that gradient descent will converge to a global minimum for a differentiable function \( f(x) \)?<br><br>
+    <ul>
+      <li>A) \( f(x) \) is convex and the learning rate is fixed.</li>
+      <li>B) \( f(x) \) is non-convex but bounded below.</li>
+      <li>C) \( f(x) \) is convex and the learning rate is appropriately small.</li>
+      <li>D) \( f(x) \) has continuous second derivatives and any learning rate will work.</li>
+    </ul>
+  </div>
+
+  <div class="question">
+    <strong>📘 Q4: Theory — Learning Rate Behavior</strong><br><br>
+    What is the most likely consequence of using a learning rate that is too large in gradient descent?<br><br>
+    <ul>
+      <li>A) Faster convergence with better accuracy</li>
+      <li>B) Slower convergence to global minimum</li>
+      <li>C) Oscillations around the minimum or divergence</li>
+      <li>D) No change in the gradient direction</li>
+    </ul>
+  </div>
+
+  <div class="question">
+    <strong>📘 Q5: Theory — Local Minima</strong><br><br>
+    Why can gradient descent sometimes get stuck at a local minimum rather than the global minimum?<br><br>
+    <ul>
+      <li>A) Gradient becomes zero and learning stops</li>
+      <li>B) Learning rate is too high</li>
+      <li>C) Function is convex</li>
+      <li>D) Global minima do not exist for differentiable functions</li>
+    </ul>
+  </div>
+
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Optimization in ML - Part 3: SGD vs Mini-batch</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f9f9f9;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.7;
+    }
+    .section {
+      margin: 60px auto;
+      padding: 40px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      max-width: 900px;
+    }
+    .equation {
+      font-size: 1.1rem;
+      background: #f7f9fc;
+      padding: 10px 20px;
+      border-left: 5px solid #0d6efd;
+      margin: 20px 0;
+    }
+    .highlight {
+      background: #fff3cd;
+      padding: 12px 16px;
+      border-left: 4px solid #ffc107;
+      font-weight: 500;
+    }
+    #gdAnimation {
+      height: 600px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="section">
+    <h2>⚡ Gradient Descent Methods: Full, Stochastic, and Mini-batch</h2>
+    <p>All these methods aim to minimize a loss function using gradients, but they differ in how much data is used to compute the gradient at each step.</p>
+  
+    <h3>🧠 Full Gradient Descent</h3>
+    <p>Computes the gradient using the entire dataset at every iteration.</p>
+    <div class="equation">
+      \[ w_{t+1} = w_t - \eta \nabla L(w_t) \]
+    </div>
+    <ul>
+      <li><strong>✅ Pros:</strong> Smooth and stable convergence. Low variance in updates.</li>
+      <li><strong>❌ Cons:</strong> Very slow on large datasets. High memory usage.</li>
+      <li><strong>📌 Best for:</strong> Small datasets where stability is important.</li>
+    </ul>
+  
+    <h3>⚡ Stochastic Gradient Descent (SGD)</h3>
+    <p>Computes the gradient using a single randomly chosen sample at each step.</p>
+    <div class="equation">
+      \[ w_{t+1} = w_t - \eta \nabla L_i(w_t) \]
+    </div>
+    <ul>
+      <li><strong>✅ Pros:</strong> Very fast and memory-efficient. Can escape local minima.</li>
+      <li><strong>❌ Cons:</strong> High variance in updates. "Zigzag" convergence path.</li>
+      <li><strong>📌 Best for:</strong> Very large datasets and non-convex problems.</li>
+    </ul>
+  
+    <h3>📦 Mini-batch Gradient Descent</h3>
+    <p>Computes the gradient using a small random batch of <code>m</code> samples.</p>
+    <div class="equation">
+      \[ w_{t+1} = w_t - \eta \frac{1}{m} \sum_{i=1}^{m} \nabla L_i(w_t) \]
+    </div>
+    <ul>
+      <li><strong>✅ Pros:</strong> Reduces noise. More efficient and stable than SGD. Supports parallelization.</li>
+      <li><strong>❌ Cons:</strong> Requires batch size tuning. Still not as stable as full GD.</li>
+      <li><strong>📌 Best for:</strong> Most real-world ML applications with medium/large datasets.</li>
+    </ul>
+    <style>
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 16px;
+      }
+    
+      th, td {
+        padding: 12px 16px;
+        border: 1px solid #ccc;
+        text-align: center;
+      }
+    
+      thead {
+        background-color: #f8f9fa;
+      }
+    
+      tbody tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+    
+      h3, h4 {
+        margin-top: 2rem;
+        font-family: 'Segoe UI', sans-serif;
+      }
+    
+      #gdAnimation {
+        width: 100%;
+        height: 300px;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        font-style: italic;
+        border-radius: 8px;
+        margin-top: 1rem;
+      }
+    </style>
+    
+    <h3>📊 Summary Comparison</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Stability</th>
+          <th>Speed</th>
+          <th>Memory Usage</th>
+          <th>Best For</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Full GD</td>
+          <td>High</td>
+          <td>Slow</td>
+          <td>High</td>
+          <td>Small datasets</td>
+        </tr>
+        <tr>
+          <td>SGD</td>
+          <td>Low</td>
+          <td>Fast</td>
+          <td>Very Low</td>
+          <td>Large/non-convex problems</td>
+        </tr>
+        <tr>
+          <td>Mini-batch GD</td>
+          <td>Medium</td>
+          <td>Medium</td>
+          <td>Medium</td>
+          <td>Real-world ML applications</td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <h4>🎞️ Optional: Animation Insight</h4>
+    <p>The animation below visualizes the different update paths over a simple loss surface \( L(w_1, w_2) = w_1^2 + w_2^2 \).</p>
+    <div class="gradient-descent-types-widget">
+      <p>Let’s compare Full GD, Stochastic GD, and Mini-batch GD on the same loss surface:</p>
+      <div id="gd-modes-plot" style="width: 100%; height: 500px;"></div>
+    
+      <script>
+        (function() {
+          const gdStepsCustom = 30, gdEtaCustom = 0.1;
+    
+          function simulateGDPathCustom(modeType) {
+            const pathPoints = [], initialW = [1.6, -1.6];
+            let w = [...initialW];
+    
+            for (let i = 0; i < gdStepsCustom; i++) {
+              let grad = [2 * w[0], 2 * w[1]];
+    
+              if (modeType === 'sgd') {
+                grad[0] += (Math.random() - 0.5) * 2;
+                grad[1] += (Math.random() - 0.5) * 2;
+              } else if (modeType === 'mini') {
+                grad[0] += (Math.random() - 0.5);
+                grad[1] += (Math.random() - 0.5);
+              }
+    
+              w[0] -= gdEtaCustom * grad[0];
+              w[1] -= gdEtaCustom * grad[1];
+    
+              pathPoints.push({
+                x: w[0],
+                y: w[1],
+                z: w[0] * w[0] + w[1] * w[1]
+              });
+            }
+            return pathPoints;
+          }
+    
+          function convertToCoordsCustom(pathArr) {
+            return {
+              x: pathArr.map(p => p.x),
+              y: pathArr.map(p => p.y),
+              z: pathArr.map(p => p.z)
+            };
+          }
+    
+          const lossSurface = { x: [], y: [], z: [], type: 'surface', showscale: false, opacity: 0.6 };
+    
+          for (let i = -2; i <= 2; i += 0.1) {
+            const rowX = [], rowY = [], rowZ = [];
+            for (let j = -2; j <= 2; j += 0.1) {
+              rowX.push(i);
+              rowY.push(j);
+              rowZ.push(i * i + j * j);
+            }
+            lossSurface.x.push(rowX);
+            lossSurface.y.push(rowY);
+            lossSurface.z.push(rowZ);
+          }
+    
+          const coordsFull = convertToCoordsCustom(simulateGDPathCustom('full'));
+          const coordsSGD = convertToCoordsCustom(simulateGDPathCustom('sgd'));
+          const coordsMini = convertToCoordsCustom(simulateGDPathCustom('mini'));
+    
+          const traceFullGD = {
+            type: 'scatter3d',
+            mode: 'lines+markers',
+            name: 'Full GD',
+            x: coordsFull.x,
+            y: coordsFull.y,
+            z: coordsFull.z,
+            line: { color: 'blue', width: 4 },
+            marker: { size: 3, color: 'blue' }
+          };
+    
+          const traceSGDCustom = {
+            type: 'scatter3d',
+            mode: 'lines+markers',
+            name: 'SGD',
+            x: coordsSGD.x,
+            y: coordsSGD.y,
+            z: coordsSGD.z,
+            line: { color: 'red', width: 3, dash: 'dot' },
+            marker: { size: 3, color: 'red' }
+          };
+    
+          const traceMiniGD = {
+            type: 'scatter3d',
+            mode: 'lines+markers',
+            name: 'Mini-batch GD',
+            x: coordsMini.x,
+            y: coordsMini.y,
+            z: coordsMini.z,
+            line: { color: 'green', width: 3, dash: 'dashdot' },
+            marker: { size: 3, color: 'green' }
+          };
+    
+          Plotly.newPlot('gd-modes-plot', [lossSurface, traceFullGD, traceSGDCustom, traceMiniGD], {
+            title: 'Gradient Descent Paths: Full vs SGD vs Mini-batch',
+            margin: { l: 0, r: 0, b: 0, t: 50 },
+            scene: {
+              xaxis: { title: 'w₁' },
+              yaxis: { title: 'w₂' },
+              zaxis: { title: 'Loss' },
+              camera: { eye: { x: 1.5, y: 1.5, z: 1.2 } }
+            }
+          });
+        })();
+      </script>
+    </div>
+    
+    
+  <script>
+    const steps = 30, eta = 0.1;
+    function simulateGD(type) {
+      const path = [], w0 = [1.6, -1.6];
+      let w = [...w0];
+      for (let i = 0; i < steps; i++) {
+        let grad = [2 * w[0], 2 * w[1]];
+        if (type === 'sgd') {
+          grad[0] += (Math.random() - 0.5) * 2;
+          grad[1] += (Math.random() - 0.5) * 2;
+        } else if (type === 'mini') {
+          grad[0] += (Math.random() - 0.5);
+          grad[1] += (Math.random() - 0.5);
+        }
+        w[0] -= eta * grad[0];
+        w[1] -= eta * grad[1];
+        path.push({ x: w[0], y: w[1], z: w[0]**2 + w[1]**2 });
+      }
+      return path;
+    }
+
+    function extractCoords(path) {
+      return {
+        x: path.map(p => p.x),
+        y: path.map(p => p.y),
+        z: path.map(p => p.z)
+      };
+    }
+
+    const surface = {
+      z: [], x: [], y: [], type: 'surface', showscale: false, opacity: 0.6
+    };
+    for (let i = -2; i <= 2; i += 0.1) {
+      const rowZ = [], rowX = [], rowY = [];
+      for (let j = -2; j <= 2; j += 0.1) {
+        rowX.push(i);
+        rowY.push(j);
+        rowZ.push(i ** 2 + j ** 2);
+      }
+      surface.x.push(rowX);
+      surface.y.push(rowY);
+      surface.z.push(rowZ);
+    }
+
+    const gd = extractCoords(simulateGD('full'));
+    const sgd = extractCoords(simulateGD('sgd'));
+    const mini = extractCoords(simulateGD('mini'));
+
+    const traceGD = {
+      type: 'scatter3d', mode: 'lines+markers', name: 'Full GD',
+      x: gd.x, y: gd.y, z: gd.z,
+      line: { color: 'blue', width: 4 },
+      marker: { size: 3, color: 'blue' }
+    };
+    const traceSGD = {
+      type: 'scatter3d', mode: 'lines+markers', name: 'SGD',
+      x: sgd.x, y: sgd.y, z: sgd.z,
+      line: { color: 'red', width: 3, dash: 'dot' },
+      marker: { size: 3, color: 'red' }
+    };
+    const traceMini = {
+      type: 'scatter3d', mode: 'lines+markers', name: 'Mini-batch GD',
+      x: mini.x, y: mini.y, z: mini.z,
+      line: { color: 'green', width: 3, dash: 'dashdot' },
+      marker: { size: 3, color: 'green' }
+    };
+
+    Plotly.newPlot('gdAnimation', [surface, traceGD, traceSGD, traceMini], {
+      title: 'Gradient Descent Paths: Full vs SGD vs Mini-batch',
+      margin: { l: 0, r: 0, b: 0, t: 50 },
+      scene: {
+        xaxis: { title: 'w₁' },
+        yaxis: { title: 'w₂' },
+        zaxis: { title: 'Loss' },
+        camera: { eye: {x: 1.5, y: 1.5, z: 1.2} }
+      }
+    });
+  </script>
+
+</body>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choosing Learning Rate in SGD</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 900px;
+            margin: auto;
+            background-color: #f9f9f9;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        .box {
+            background: #ffffff;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Choosing Learning Rate in Stochastic Gradient Descent (SGD)</h1>
+
+    <div class="box">
+        <h2>1. Theoretical Requirements for Convergence</h2>
+        <p>For SGD to converge, the learning rate sequence \( \{ \eta_t \} \) must satisfy the <strong>Robbins-Monro Conditions</strong>:</p>
+        <ul>
+            <li><strong>Infinite Exploration:</strong> \( \sum_{t=1}^{\infty} \eta_t = \infty \) — Ensures the algorithm explores the parameter space indefinitely.</li>
+            <li><strong>Finite Variance:</strong> \( \sum_{t=1}^{\infty} \eta_t^2 < \infty \) — Ensures the noise in stochastic updates diminishes over time.</li>
+        </ul>
+    </div>
+
+    <div class="box">
+        <h2>2. Case 1: \( \eta_t = \frac{1}{1+t} \)</h2>
+        <p><strong>Infinite Exploration Check:</strong></p>
+        <p>\( \sum_{t=1}^{\infty} \frac{1}{1+t} = \sum_{k=2}^{\infty} \frac{1}{k} \rightarrow \infty \) (Harmonic series)</p>
+        <p><strong>✅ Satisfies Infinite Exploration</strong></p>
+
+        <p><strong>Finite Variance Check:</strong></p>
+        <p>\( \sum_{t=1}^{\infty} \left( \frac{1}{1+t} \right)^2 \approx \sum_{k=2}^{\infty} \frac{1}{k^2} = \frac{\pi^2}{6} - 1 \)</p>
+        <p><strong>✅ Satisfies Finite Variance</strong></p>
+
+        <p><strong>Conclusion:</strong> \( \eta_t = \frac{1}{1+t} \) is valid for SGD convergence.</p>
+    </div>
+
+    <div class="box">
+        <h2>3. Case 2: \( \eta_t = \frac{1}{2^t} \)</h2>
+        <p><strong>Infinite Exploration Check:</strong></p>
+        <p>\( \sum_{t=1}^{\infty} \frac{1}{2^t} = 1 \) (Geometric series)</p>
+        <p><strong>❌ Fails Infinite Exploration</strong></p>
+
+        <p><strong>Finite Variance Check:</strong></p>
+        <p>\( \sum_{t=1}^{\infty} \left( \frac{1}{2^t} \right)^2 = \sum_{t=1}^{\infty} \frac{1}{4^t} = \frac{1}{3} \)</p>
+        <p><strong>✅ Satisfies Finite Variance</strong></p>
+
+        <p><strong>Conclusion:</strong> \( \eta_t = \frac{1}{2^t} \) is <strong>invalid</strong> as it fails the infinite exploration condition.</p>
+    </div>
+
+    <div class="box">
+        <h2>4. Practical Implications</h2>
+        <h3>(a) Why \( \eta_t = \frac{1}{2^t} \) Fails</h3>
+        <ul>
+            <li>Decay is exponential — step size becomes negligible quickly.</li>
+            <li>Premature convergence: Updates stop before reaching the true minimum.</li>
+            <li>Example: Minimizing \( f(\theta) = \theta^2 \) leads to stagnation far from 0.</li>
+        </ul>
+
+        <h3>(b) Why \( \eta_t = \frac{1}{1+t} \) Works</h3>
+        <ul>
+            <li>Decay is polynomial — updates remain meaningful for longer.</li>
+            <li>Convergence is slow but steady.</li>
+            <li>Example: For \( f(\theta) = \theta^2 \), we get \( \theta_{t+1} = \theta_t - \frac{2\theta_t}{1+t} \).</li>
+        </ul>
+    </div>
+
+    <div class="box">
+        <h2>5. Key Takeaways</h2>
+        <ul>
+            <li><strong>Decay Rate Matters:</strong>
+                <ul>
+                    <li>\( \eta_t = \frac{1}{1+t} \): decays polynomially → good.</li>
+                    <li>\( \eta_t = \frac{1}{2^t} \): decays exponentially → bad.</li>
+                </ul>
+            </li>
+            <li><strong>Practical Note:</strong> Even good theoretical sequences are often replaced by adaptive methods like Adam, RMSProp, or learning rate schedules (cosine annealing, step decay) in real-world applications.</li>
+        </ul>
+        <p><strong>Final Verdict:</strong> Use \( \eta_t = \frac{1}{1+t} \) for theoretical convergence, but prefer adaptive methods in practice.</p>
+    </div>
+</body>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Part 3 Enhanced: GD Variants</title>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      line-height: 1.6;
+      margin: 2rem;
+      background: #fdfdfd;
+      color: #333;
+    }
+    h2, h3 {
+      color: #004d99;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.6rem;
+      text-align: center;
+    }
+    th {
+      background-color: #e6f0ff;
+    }
+    .math {
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <h2>Part 3: Stochastic & Mini-batch Gradient Descent</h2>
+
+  <h3>1. Overview and Motivation</h3>
+  <p>Gradient Descent (GD) aims to minimize a loss function by updating parameters iteratively. Full-Batch GD is precise but slow for large datasets. Stochastic and Mini-batch variants introduce trade-offs between speed, variance, and stability.</p>
+
+  <h3>2. Full-Batch Gradient Descent (Recap)</h3>
+  <div class="math">\[ \mathbf{w}_{t+1} = \mathbf{w}_t - \eta \nabla L(\mathbf{w}_t) \]</div>
+  <p><strong>Pros:</strong> Stable and accurate updates.<br>
+     <strong>Cons:</strong> Requires full dataset per step — slow for large datasets.</p>
+  <p><strong>Time Complexity:</strong> \( O(n \cdot d) \) per iteration</p>
+
+  <h3>3. Stochastic Gradient Descent (SGD)</h3>
+  <div class="math">\[ \mathbf{w}_{t+1} = \mathbf{w}_t - \eta \nabla \ell_i(\mathbf{w}_t) \]</div>
+  <p>Where \( \ell_i \) is the loss on a single training sample.</p>
+  <p><strong>Pros:</strong> Very fast, suitable for online settings.<br>
+     <strong>Cons:</strong> High variance in updates — can oscillate.</p>
+  <p><strong>Time Complexity:</strong> \( O(d) \) per iteration</p>
+
+  <h3>4. Mini-batch Gradient Descent</h3>
+  <div class="math">\[ \mathbf{w}_{t+1} = \mathbf{w}_t - \eta \cdot \frac{1}{|B|} \sum_{i \in B} \nabla \ell_i(\mathbf{w}_t) \]</div>
+  <p>Where \( B \) is a randomly sampled mini-batch of data.</p>
+  <p><strong>Pros:</strong> Balances speed and stability; GPU-friendly.<br>
+     <strong>Cons:</strong> Requires batch management.</p>
+  <p><strong>Time Complexity:</strong> \( O(b \cdot d) \), where \( b \) is batch size</p>
+
+  <h3>5. Comparison Table</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Method</th>
+        <th>Time/Step</th>
+        <th>Convergence</th>
+        <th>Noise</th>
+        <th>Typical Use Case</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Full GD</td>
+        <td>High</td>
+        <td>Stable</td>
+        <td>Low</td>
+        <td>Convex optimization, small datasets</td>
+      </tr>
+      <tr>
+        <td>SGD</td>
+        <td>Very Low</td>
+        <td>Fluctuates</td>
+        <td>High</td>
+        <td>Online learning, streaming data</td>
+      </tr>
+      <tr>
+        <td>Mini-batch</td>
+        <td>Medium</td>
+        <td>Stable</td>
+        <td>Medium</td>
+        <td>Deep learning, large datasets</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>6. Visual Intuition</h3>
+  <p>Animation comparing how GD, SGD, and Mini-batch GD move along a 2D loss landscape. GD follows a smooth path, SGD zig-zags, and Mini-batch balances between the two.</p>
+
+  <!-- Animated path comparison inserted here -->
+  <div id="animation_placeholder">
+    <!-- You can embed a canvas animation or use an iframe to link it externally -->
+  </div>
+</body>
+</html>

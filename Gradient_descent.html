@@ -608,9 +608,21 @@
 </head>
 <body>
   <div class="section">
-    <h2>⚡ Gradient Descent Methods: Full, Stochastic, and Mini-batch</h2>
-    <p>All these methods aim to minimize a loss function using gradients, but they differ in how much data is used to compute the gradient at each step.</p>
-  
+  <h1 style="text-align: center; font-weight: bold;">
+  Gradient Descent: Advanced Concepts - Optional
+</h1>
+
+<h2 style="text-align: center; font-weight: bold;">
+  ⚡ Gradient Descent Methods: Full, Stochastic, and Mini-batch
+</h2>
+<p style="text-align: center;">
+  All these methods aim to minimize a loss function using gradients, but they differ in how much data is used to compute the gradient at each step.
+</p>
+
+<p><strong>1. Batch Gradient Descent:</strong> Uses the entire dataset to compute gradients. Stable but slow for large datasets.</p>
+<p><strong>2. Stochastic Gradient Descent (SGD):</strong> Uses one sample per iteration. Faster but introduces noise in updates.</p>
+<p><strong>3. Mini-batch Gradient Descent:</strong> Uses a small batch of data for each update. Balances speed and stability, commonly used in deep learning.</p>
+
     <h3>🧠 Full Gradient Descent</h3>
     <p>Computes the gradient using the entire dataset at every iteration.</p>
     <div class="equation">
@@ -721,7 +733,8 @@
       </tbody>
     </table>
     
-    <h4>🎞️ Optional: Animation Insight</h4>
+    <h4 style="text-align: center; font-weight: bold;">Geometrical Interpretation</h4>
+
     <p>The animation below visualizes the different update paths over a simple loss surface \( L(w_1, w_2) = w_1^2 + w_2^2 \).</p>
     <div class="gradient-descent-types-widget">
       <p>Let’s compare Full GD, Stochastic GD, and Mini-batch GD on the same loss surface:</p>
@@ -988,7 +1001,7 @@
 
   
 
-  <h3>5. Comparison Table</h3>
+  <h3>Another Comparison Table</h3>
   <table>
     <thead>
       <tr>
@@ -1024,9 +1037,7 @@
     </tbody>
   </table>
 
-  <h3>6. Visual Intuition</h3>
-  <p>Animation comparing how GD, SGD, and Mini-batch GD move along a 2D loss landscape. GD follows a smooth path, SGD zig-zags, and Mini-batch balances between the two.</p>
-
+  
   <!-- Animated path comparison inserted here -->
   <div id="animation_placeholder">
     <!-- You can embed a canvas animation or use an iframe to link it externally -->

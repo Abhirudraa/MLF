@@ -609,11 +609,11 @@
 <body>
   <div class="section">
   <h1 style="text-align: center; font-weight: bold;">
-  Gradient Descent: Advanced Concepts - Optional
+  Advanced Concepts - Optional
 </h1>
 
 <h2 style="text-align: center; font-weight: bold;">
-  ⚡ Gradient Descent Methods: Full, Stochastic, and Mini-batch
+  Gradient Descent Methods: Full, Stochastic, and Mini-batch
 </h2>
 <p style="text-align: center;">
   All these methods aim to minimize a loss function using gradients, but they differ in how much data is used to compute the gradient at each step.
@@ -634,7 +634,7 @@
       <li><strong>Best for:</strong> Small datasets where stability is important.</li>
     </ul>
   
-    <h3>⚡ Stochastic Gradient Descent (SGD)</h3>
+    <h3>Stochastic Gradient Descent (SGD)</h3>
     <p>Computes the gradient using a single randomly chosen sample at each step.</p>
     <div class="equation">
       \[ w_{t+1} = w_t - \eta \nabla L_i(w_t) \]
@@ -645,7 +645,7 @@
       <li><strong> Best for:</strong> Very large datasets and non-convex problems.</li>
     </ul>
   
-    <h3>📦 Mini-batch Gradient Descent</h3>
+    <h3>Mini-batch Gradient Descent</h3>
     <p>Computes the gradient using a small random batch of <code>m</code> samples.</p>
     <div class="equation">
       \[ w_{t+1} = w_t - \eta \frac{1}{m} \sum_{i=1}^{m} \nabla L_i(w_t) \]

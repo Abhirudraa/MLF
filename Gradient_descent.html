@@ -506,7 +506,7 @@
   <h2>Practice Questions</h2>
 
   <div class="question">
-    <strong>✅ Q1: One Iteration </strong><br><br>
+    <strong>Q1: One Iteration </strong><br><br>
     Function:<br>
     \( f(x, y) = x^2 + 3y^2 - 4x + 6y \)<br><br>
     Initial point: \( (x_0, y_0) = (2, -1) \)<br>
@@ -517,7 +517,7 @@
   </div>
 
   <div class="question">
-    <strong>🔥🧠 Q2: Trigonometric & Two Iterations</strong><br><br>
+    <strong>Q2: Trigonometric & Two Iterations</strong><br><br>
     Function:<br>
     \( f(x, y) = \sin(x) + \cos(y) + xy \)<br><br>
     Initial point: \( (x_0, y_0) = \left(\frac{\pi}{4}, \frac{\pi}{3}\right) \)<br>
@@ -528,7 +528,7 @@
   </div>
 
   <div class="question">
-    <strong>📘 Q3: Theory — Convergence</strong><br><br>
+    <strong>Q3: Theory — Convergence</strong><br><br>
     Which of the following conditions guarantees that gradient descent will converge to a global minimum for a differentiable function \( f(x) \)?<br><br>
     <ul>
       <li>A) \( f(x) \) is convex and the learning rate is fixed.</li>
@@ -539,7 +539,7 @@
   </div>
 
   <div class="question">
-    <strong>📘 Q4: Theory — Learning Rate Behavior</strong><br><br>
+    <strong>Q4: Theory — Learning Rate Behavior</strong><br><br>
     What is the most likely consequence of using a learning rate that is too large in gradient descent?<br><br>
     <ul>
       <li>A) Faster convergence with better accuracy</li>
@@ -550,7 +550,7 @@
   </div>
 
   <div class="question">
-    <strong>📘 Q5: Theory — Local Minima</strong><br><br>
+    <strong>Q5: Theory — Local Minima</strong><br><br>
     Why can gradient descent sometimes get stuck at a local minimum rather than the global minimum?<br><br>
     <ul>
       <li>A) Gradient becomes zero and learning stops</li>
@@ -623,15 +623,15 @@
 <p><strong>2. Stochastic Gradient Descent (SGD):</strong> Uses one sample per iteration. Faster but introduces noise in updates.</p>
 <p><strong>3. Mini-batch Gradient Descent:</strong> Uses a small batch of data for each update. Balances speed and stability, commonly used in deep learning.</p>
 
-    <h3>🧠 Full Gradient Descent</h3>
+    <h3>Full Gradient Descent</h3>
     <p>Computes the gradient using the entire dataset at every iteration.</p>
     <div class="equation">
       \[ w_{t+1} = w_t - \eta \nabla L(w_t) \]
     </div>
     <ul>
-      <li><strong>✅ Pros:</strong> Smooth and stable convergence. Low variance in updates.</li>
-      <li><strong>❌ Cons:</strong> Very slow on large datasets. High memory usage.</li>
-      <li><strong>📌 Best for:</strong> Small datasets where stability is important.</li>
+      <li><strong>Pros:</strong> Smooth and stable convergence. Low variance in updates.</li>
+      <li><strong>Cons:</strong> Very slow on large datasets. High memory usage.</li>
+      <li><strong>Best for:</strong> Small datasets where stability is important.</li>
     </ul>
   
     <h3>⚡ Stochastic Gradient Descent (SGD)</h3>
@@ -640,9 +640,9 @@
       \[ w_{t+1} = w_t - \eta \nabla L_i(w_t) \]
     </div>
     <ul>
-      <li><strong>✅ Pros:</strong> Very fast and memory-efficient. Can escape local minima.</li>
-      <li><strong>❌ Cons:</strong> High variance in updates. "Zigzag" convergence path.</li>
-      <li><strong>📌 Best for:</strong> Very large datasets and non-convex problems.</li>
+      <li><strong>Pros:</strong> Very fast and memory-efficient. Can escape local minima.</li>
+      <li><strong>Cons:</strong> High variance in updates. "Zigzag" convergence path.</li>
+      <li><strong> Best for:</strong> Very large datasets and non-convex problems.</li>
     </ul>
   
     <h3>📦 Mini-batch Gradient Descent</h3>
@@ -651,9 +651,9 @@
       \[ w_{t+1} = w_t - \eta \frac{1}{m} \sum_{i=1}^{m} \nabla L_i(w_t) \]
     </div>
     <ul>
-      <li><strong>✅ Pros:</strong> Reduces noise. More efficient and stable than SGD. Supports parallelization.</li>
-      <li><strong>❌ Cons:</strong> Requires batch size tuning. Still not as stable as full GD.</li>
-      <li><strong>📌 Best for:</strong> Most real-world ML applications with medium/large datasets.</li>
+      <li><strong>Pros:</strong> Reduces noise. More efficient and stable than SGD. Supports parallelization.</li>
+      <li><strong> Cons:</strong> Requires batch size tuning. Still not as stable as full GD.</li>
+      <li><strong> Best for:</strong> Most real-world ML applications with medium/large datasets.</li>
     </ul>
     <style>
       table {
